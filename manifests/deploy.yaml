@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      serviceAccountName: test-sa
+      containers:
+        - name: node
+          image: yossy1119/zenn-gke-privateip-cloudsql:latest
+          ports:
+            - containerPort: 8080
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
+          args:
+            - "--private-ip"
+            - "--structured-logs"
+            - "--port=3306"
+            - "gke-cloudsql-private:asia-northeast1:sql"
+          securityContext:
+            runAsNonRoot: true
